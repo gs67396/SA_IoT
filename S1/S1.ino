@@ -37,6 +37,9 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  String msg = "Caio: oi";
+  String topico = "AulaIoT/msg";
+  mqtt.publish(topico.c_str().msg.c_str());
+  delay(2000);
+  mqtt.loop();
 }
