@@ -46,6 +46,10 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  String msg = "gui: Oi"; //informacao que sera enviada para broker
+  String topico = "AulaIoT/msg";
+  mqtt.publish(topico.c_str(),msg.c_str());
+  delay(2000);
+  mqtt.loop();
 }
+
