@@ -83,4 +83,8 @@ void callback(char* topic, byte* payload, unsigned long length) {
        Serial.println("Led ligado: ");
     }
 
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 7b0a06d7acbebe57d133ef952cb8a98726d48d51
