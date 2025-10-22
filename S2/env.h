@@ -10,8 +10,8 @@
 
                                                                                      //Daqui para baixo, do grupo as informacoes | | | | | | | | | | | | | | | | | | | | | | | | | | | | | || | | | || | | | |
 // Variaveis do user dpo broker
-#define BROKER_USR_NAME ""
-#define BROKER_USR_PASS ""
+#define BROKER_USR_NAME "Placa_02"
+#define BROKER_USR_PASS "Uniguiy1"
 
 // variavies dos topicos
 #define TOPIC1 ""

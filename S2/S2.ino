@@ -1,15 +1,11 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include "env.h"
 
 // cria objeto para WiFi
 WiFiClient client;
 // cria objeto para mqtt
 PubSubClient mqtt(client);
-
-//Nome da rede
-const String SSID = "FIESC_IOT_EDU";
-// define senha
-const String PASS = "8120gv08";
 
 //endereço
 const String brokerURL = "test.mosquitto.org";
@@ -34,7 +30,7 @@ void setup() {
 
 
   // INICIO DO CODIGO: configura o servidor
-  mqtt.setServer(brokerURL.c_str(), brokerPort);
+  mqtt.setServer( BROKER_URL, BROKER_PORT);
   Serial.println("Conectando no Broker");
   //cria um nome que começa com S2
   String boardID = "S2-";
@@ -42,11 +38,12 @@ void setup() {
   boardID += String(random(0xffff), HEX);
 
   // enquando nao estiver conectado mostra "."
-  while (!mqtt.connect(boardID.c_str())) {  // nao estiver conectado
+  while (!mqtt.connected(()) {  // nao estiver conectado
+  mqtt.connect(userId.c_str(), BROKER_USR_NAME, BROKER_USR_PASS);
     Serial.print(".");
-    delay(200);
+    delay(2000);
   }
-  mqtt.subscribe(topico.c_str());
+  mqtt.subscribe(TOPIC1);
   mqtt.setCallback(callback);
   Serial.println("conectado com sucesso!");
 }
