@@ -1,11 +1,20 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <WiFiClientSecure.h>
+#include "env.h"
 
-WiFiClient client;
+//Inscricoes (recebe)
+#define TOPIC "ST/S1/Temperatura"
+#define TOPIC "SU/S1/Unidade"
+#define TOPIC "SA/S1/Luminosidade"
+#define TOPIC "SP1/S1/Presença1"
+
+
+//publicacoes (envia)
+#edif
+
+WiFiClientSecure wifiClient;
 PubSubClient mqtt(client);
-
-const String SSID = "FIESC_IOT_EDU";
-const String PASS = "8120gv08";
 
 const String brokerURL = "test.mosquitto.org";
 const int brokerPort = 1883;
@@ -18,6 +27,7 @@ void setup() {
   pinMode(2, OUTPUT);
 
   Serial.begin(115200);
+  wifiClient.setInsetcure();
   WiFi.begin(SSID, PASS);
   Serial.println("Conectando no WiFi");
   while (WiFi.status() != WL_CONNECTED) {
@@ -26,17 +36,18 @@ void setup() {
   }
   Serial.println("Conectado com sucesso!");
 
-  mqtt.setServer(brokerURL.c_str(), brokerPort);
+  mqtt.setServer(BROKER_URL , brokerPort);
   Serial.println("Conectando no Broker");
 
   String boardID = "Sl-";
   boardID += String(random(0xffff), HEX);
 
-  while (!mqtt.connect(boardID.c_str())) {
+  while (!mqtt.connected()) {
+    mqtt.connect(userId.c_str(),BROKER_USR_NAME, BROKER_USR_PASS);
     Serial.print(".");
-    delay(200);
+    delay(2000);
   }
-  mqtt.subscribe(topico.c_str());
+  mqtt.subscribe(TOPIC1());
   mqtt.setCallback(callback);
   Serial.println("conectado com sucesso!");
 }
