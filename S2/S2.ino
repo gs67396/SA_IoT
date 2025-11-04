@@ -4,31 +4,22 @@
 #include <WiFiClientSecure.h>  ////28/20
 #include <Servo.h>
 
-// Inscricoes (recebe)
-
-#define TOPIC "SP2/S2/Presença2"
-#define TOPIC "SP4/S2/Presença4"
-
-//publicacoes (envia)
-#endif 
 
 // cria objeto para WiFi
 WiFiClientSecure WiFiClient;
 // cria objeto para mqtt
 PubSubClient mqtt(client);
 
-//endereço = porta que está
-const String brokerURL = "test.mosquitto.org";
-const int brokerPort = 1883;
-
-//topicos que S2 usara
-const String topico = "SP2";  // temperatura /28/20
-const String topico = "SP2";  // temperatura /28/20
-
-const String brokerUser = "";  // variavel para o user do broker
-const String brokerpass = "";  // variavel para a senha do broker
 
 void setup() {
+  //servo motor
+  meuServo.attach(9);
+
+//led rgb
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+
   pinMode(2, OUTPUT);
   Serial.begin(115200);      //configura a placa para mostrar na tela
   WiFiClient.SetInsecure();  ////28/20
@@ -55,20 +46,51 @@ void setup() {
     Serial.print(".");
     delay(2000);
   }
-  mqtt.subscribe(TOPIC1);
+  mqtt.subscribe(SA); //inscrever topic
   mqtt.setCallback(callback);
   Serial.println("conectado com sucesso!");
 }
 
 void loop() {
-  String mensagem = "";
-  if (Serial.available() > 0) {
-    mensagem = Serial.readStringUntil('\n');
-    Serial.print("Mensagem digitada: ");
-    Serial.println(mensagem);
-    mqtt.publish("SP2", mensagem.c_str());  //envia a mensagem
-  }
+
+  // led rgb
+  //cor vermelha
+
+  analogWrite(redPin, 255);
+  analogWrite(greenPin, 0);
+  analogWrite(bluePin, 0);
+  delay(1000); // Espera 1 segundo
+
+  // Cor Verde
+  analogWrite(redPin, 0);
+  analogWrite(greenPin, 255);
+  analogWrite(bluePin, 0);
+  delay(1000);
+
+  // Cor Azul
+  analogWrite(redPin, 0);
+  analogWrite(greenPin, 0);
+  analogWrite(bluePin, 255);
+  delay(1000);
+
+  // Cor Amarelo 
+  analogWrite(redPin, 255);
+  analogWrite(greenPin, 255);
+  analogWrite(bluePin, 0);
+  delay(1000);
+
+    //ler temperatura
+    float valor_luminosidade = 12;
+    mqtt.publish(TOPIC_Luminosidade, valor_luminosidade);  //envia a mensagem (publica)
   mqtt.loop();  // mantém a conexão
+  
+  //servo motor
+  meuServo.write(0);   
+  delay(1000);         
+  meuServo.write(90);  
+  delay(1000);         
+  meuServo.write(180); 
+  delay(1000);      
 }
 
 
@@ -78,7 +100,7 @@ void callback(char* topic, byte* payload, unsigned long length) {
     mensagemRecebida += (char)payload[i];
   }
 
-  /* Exemplo / Abaixo led ligar e desligar, junto com as mensagens de confirmacao.
+  // Exemplo / Abaixo led ligar e desligar, junto com as mensagens de confirmacao.
     Serial.println(mensagemRecebida);
     //Fazer o controle aqui
 
@@ -92,6 +114,8 @@ void callback(char* topic, byte* payload, unsigned long length) {
        Serial.println("Led ligado: ");
     }
   */
+
+
 
 // Servo 3
   if (Sensor_de_distancia = HIGH) {
