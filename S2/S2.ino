@@ -4,18 +4,16 @@
 #include <WiFiClientSecure.h>  ////28/20
 #include <Servo.h>
 
-
 // cria objeto para WiFi
 WiFiClientSecure WiFiClient;
 // cria objeto para mqtt
 PubSubClient mqtt(client);
 
-
 void setup() {
   //servo motor
   meuServo.attach(9);
 
-//led rgb
+  //led rgb
   pinMode(redPin, OUTPUT);
   pinMode(greenPin, OUTPUT);
   pinMode(bluePin, OUTPUT);
@@ -113,7 +111,7 @@ void callback(char* topic, byte* payload, unsigned long length) {
       digitalWrite(2,HIGH);
        Serial.println("Led ligado: ");
     }
-  */
+}
 
 
 
