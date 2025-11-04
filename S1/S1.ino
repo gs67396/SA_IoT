@@ -11,7 +11,7 @@
 
 
 //publicacoes (envia)
-#edif
+
 
 WiFiClientSecure wifiClient;
 PubSubClient mqtt(client);
@@ -23,7 +23,14 @@ const String topico ="CaioA";
 const String brokerUser = "";
 const String brokerpass = "";
 
+//sensor de luz
+const byte LDR_PIN = 34;
+
+
 void setup() {
+  //sensor de luz
+  Serial.begin(115200);
+
   pinMode(2, OUTPUT);
 
   Serial.begin(115200);
@@ -53,18 +60,23 @@ void setup() {
 }
 
 void loop() {
-  // String msg = "Caio: oi";
-  // String topico = "AulaIoT/msg";
-  // mqtt.publish(topico.c_str().msg.c_str());
-  // delay(2000);
-  // mqtt.loop();
+ //sensor de luz
+  int leituraLDR = analogRead(LDR_PIN);
+  float tensao = (leituraLDR * 3.3) / 4095.0;
+  
+  Serial.print("Leitura LDR: ");
+  Serial.print(leituraLDR);
+  Serial.print(" - Tensão: ");
+  Serial.println(tensao);
+  
+  if (leituraLDR < 1000) {
+    Serial.println("Ambiente escuro");
+  } else {
+    Serial.println("Ambiente claro");
+  }
+  
+  delay(500);
 
-  // void loop {
-    String mensagem = "";
-    if (Serial.available() > 0) {
-    mensagem = Serial.readStringUntil('\n');
-    Serial.print("Mensagem digitada:");
-    Serial.println(mensagem);
     mqtt.publish("pipa",mensagem.c_str());
   }
   mqtt.loop(); //mantem a conexão
