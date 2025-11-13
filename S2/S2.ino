@@ -77,18 +77,35 @@ void loop() {
   analogWrite(bluePin, 0);
   delay(1000);
 
-    //ler temperatura
-    float valor_luminosidade = 12;
-    mqtt.publish(TOPIC_Luminosidade, valor_luminosidade);  //envia a mensagem (publica)
-  mqtt.loop();  // mantém a conexão
+    float presença2 = 2
+    float presença4 = 4
+
+    Serial.begin(115200);
+  pinMode(TRIGGER_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+}
+
+  //ler ultrassonico 1
+  // verificar se distancia < 10
+  //    mqtt.publish("SA/SP/Presença2", "presença");  //envia a mensagem (publica)
   
-  //servo motor
-  meuServo.write(0);   
-  delay(1000);         
-  meuServo.write(90);  
-  delay(1000);         
-  meuServo.write(180); 
-  delay(1000);      
+  //ler ultrassonico 2
+  // verificar se distancia2 < 10
+  //  mqtt.publish("SA/SP/Presença4", "presença");  //envia a mensagem (publica)
+
+  long distancia = lerDistancia();
+  
+  Serial.print("Distância: ");
+  Serial.print(distancia);
+  Serial.println(" cm");
+  
+  if (distancia < 10) {
+    Serial.println("Objeto próximo!");
+  }
+  
+  delay(500);
+  
+  mqtt.loop();
 }
 
 
@@ -111,17 +128,6 @@ void callback(char* topic, byte* payload, unsigned long length) {
       digitalWrite(2,HIGH);
        Serial.println("Led ligado: ");
     }
-}
-
-
-
-// Servo 3
-  if (Sensor_de_distancia = HIGH) {
-  delay(1000); // Espera 1 segundo
-  meuServo.write(180);
-} else () {
-  delay(1000);
-  meuServo.write(o);
 }
 
 // LED iluminação
