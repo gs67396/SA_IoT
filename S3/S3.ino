@@ -41,7 +41,10 @@ void setup() {
     Serial.print(".");
     delay(2000);
   }
-  mqtt.subscribe(SA); //inscrever topic
+  mqtt.subscribe(SA/SL/Luminosidade); //inscrever topic
+  mqtt.subscribe(SA/SP/Presença2); //inscrever topic
+  mqtt.subscribe(SA/SP/Presença4); //inscrever topic
+  mqtt.subscribe(SA/SP/Presença); //inscrever topic
   mqtt.setCallback(callback);
   Serial.println("conectado com sucesso!");
 }
@@ -74,10 +77,9 @@ void loop() {
   analogWrite(bluePin, 0);
   delay(1000);
 
-  //ler temperatura
-  float valor_luminosidade = 12;
-  mqtt.publish(TOPIC_Luminosidade, valor_luminosidade);  //envia a mensagem (publica)
-  mqtt.loop();                                           // mantém a conexão
+  float valor_presença = 12;
+  mqtt.publish(valor_presença, valor_servo1, valor_servo3); //envia a mensagem (publica)
+  mqtt.loop();  // mantém a conexão
 
   //servo motor 1
   meuServo.write(0);
@@ -107,3 +109,4 @@ void callback(char* topic, byte* payload, unsigned long length) {
     Serial.println("Led ligado: ");
   }
 }
+

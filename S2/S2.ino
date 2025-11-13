@@ -44,7 +44,7 @@ void setup() {
     Serial.print(".");
     delay(2000);
   }
-  mqtt.subscribe(SA); //inscrever topic
+  mqtt.subscribe(SA/SL/Luminosidade); //inscrever topic
   mqtt.setCallback(callback);
   Serial.println("conectado com sucesso!");
 }
