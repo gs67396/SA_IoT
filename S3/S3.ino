@@ -10,15 +10,15 @@ void setup() {
   //servo motor 2
   meuServo.attach(13);
 
-  //led rgb 
+  //led rgb
   pinMode(redPin, OUTPUT);
   pinMode(greenPin, OUTPUT);
   pinMode(bluePin, OUTPUT);
 
   pinMode(2, OUTPUT);
-  Serial.begin(115200);      //configura a placa para mostrar na tela
-  WiFiClient.SetInsecure();  ////28/20
-  WiFi.begin(SSID, PASS);    //tenta conectar na rede
+  Serial.begin(115200);      //
+  WiFiClient.SetInsecure();  //
+  WiFi.begin(SSID, PASS);    //
   Serial.println("conectado no WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -41,11 +41,9 @@ void setup() {
     Serial.print(".");
     delay(2000);
   }
-  mqtt.subscribe(SA/SL/Luminosidade); //inscrever topic
-  mqtt.subscribe(SA/SP/Presença2); //inscrever topic
-  mqtt.subscribe(SA/SP/Presença4); //inscrever topic
   mqtt.subscribe(SA/SP/Presença); //inscrever topic
-  mqtt.setCallback(callback);
+  mqtt.subscribe(SA/SP/Presença2); //inscrever topic
+  mqtt.subscribe(SA/SP/Presença3); //inscrever topic
   Serial.println("conectado com sucesso!");
 }
 
@@ -77,17 +75,9 @@ void loop() {
   analogWrite(bluePin, 0);
   delay(1000);
 
-  float valor_presença = 12;
-  mqtt.publish(valor_presença, valor_servo1, valor_servo3); //envia a mensagem (publica)
-  mqtt.loop();  // mantém a conexão
-
-  //servo motor 1
-  meuServo.write(0);
-  delay(1000);
-  meuServo.write(90);
-  delay(1000);
-  meuServo.write(180);
-  delay(1000);
+  //ler ultrassonico
+  //verificar se distancia < 10
+  // mqtt.publish("SA/SP/Presença3", "presença");  //envia a mensagem (publica)
 }
 
 
@@ -109,4 +99,3 @@ void callback(char* topic, byte* payload, unsigned long length) {
     Serial.println("Led ligado: ");
   }
 }
-
