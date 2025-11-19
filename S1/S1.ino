@@ -2,13 +2,14 @@
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
 #include "env.h"
+#include "DHT.h"
 
 //Inscricoes (recebe)
 #define TOPIC "ST/S1/Temperatura"
-#define TOPIC "SU/S1/Unidade"
-#define TOPIC "SA/S1/Luminosidade"
-#define TOPIC "SP1/S1/Presença1"
+#define DHTPIN 4
+#define DHTTYPE DHT11
 
+DHT dht(DHTPIN, DHTTYPE);
 
 //publicacoes (envia)
 
@@ -26,8 +27,12 @@ const String brokerpass = "";
 //sensor de luz
 const byte LDR_PIN = 34;
 
-
 void setup() {
+
+  //Sensor de umidade e temperatura
+  Serial.begin(115200);
+  dht.begin();
+
   //sensor de luz
   Serial.begin(115200);
 
@@ -54,12 +59,30 @@ void setup() {
     Serial.print(".");
     delay(2000);
   }
-  mqtt.subscribe(TOPIC1());
+  mqtt.subscribe(SA/SL/Luminosidade); //inscrever topic
   mqtt.setCallback(callback);
   Serial.println("conectado com sucesso!");
 }
 
 void loop() {
+
+  //Sensor de umidade e temperatura
+  float umidade = dht.readHumidity();
+  float temperatura = dht.readTemperature();
+  
+  if (isnan(umidade) || isnan(temperatura)) {
+    Serial.println("Erro na leitura do DHT11");
+    return;
+  }
+
+  Serial.print("Umidade: ");
+  Serial.print(umidade);
+  Serial.print("%  Temperatura: ");
+  Serial.print(temperatura);
+  Serial.println("°C");
+  
+  delay(2000);
+
  //sensor de luz
   int leituraLDR = analogRead(LDR_PIN);
   float tensao = (leituraLDR * 3.3) / 4095.0;

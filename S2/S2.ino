@@ -4,12 +4,12 @@
 #include <WiFiClientSecure.h>  ////28/20
 #include <ESP32Servo.h>
 
-// le e envia ao topico
+// lê envia ao topico
 
 // cria objeto para WiFi
-WiFiClientSecure WiFiClient;
+WiFiClientSecure client;
 // cria objeto para mqtt
-PubSubClient mqtt(client);
+PubSubClient mqtt(client); 
 
 //sensor1
 const byte TRIGGER_PIN = 5;
@@ -18,15 +18,8 @@ const byte ECHO_PIN = 18;
 const byte TRIGGER_PIN2 = 4;
 const byte ECHO_PIN2 = 19;
 
-int byte redPin = 16;
-int byte greenPin = 17;
-int byte bluePin = 21;
-
 void setup() {
   //led rgb
-  pinMode(redPin, OUTPUT);
-  pinMode(greenPin, OUTPUT);
-  pinMode(bluePin, OUTPUT);
 
   pinMode(2, OUTPUT);
   Serial.begin(115200);      //configura a placa para mostrar na tela
@@ -48,13 +41,15 @@ void setup() {
   //junta o S1 com um numero aleatorio
   boardID += String(random(0xffff), HEX);
 
+  string userID = "";
+  
   // enquando nao estiver conectado mostra "."
-  while (!mqtt.connected(()) {  // nao estiver conectado
-    mqtt.connect(userId.c_str(), BROKER_USR_NAME, BROKER_USR_PASS);
+  while (!mqtt.connected()) {  // nao estiver conectado
+    mqtt.connect(userId.c_str(), BROKER_USR_NAME, BROKER_USR_PASS); //
     Serial.print(".");
     delay(2000);
   }
-  mqtt.subscribe(SA/SL/Luminosidade); //inscrever topic
+  mqtt.subscribe(SA_SP_Luminosidade); //inscrever topic
   mqtt.setCallback(callback);
   Serial.println("conectado com sucesso!");
 
@@ -93,53 +88,20 @@ long lerDistancia2() {
   long duracao = pulseIn(ECHO_PIN2, HIGH);
   long distancia = duracao * 349.24 / 2 / 10000;
 
-  return distancia2;
+  return distancia;
 }
 
 void loop() {
 
-  // led rgb
-  //cor vermelha
-  analogWrite(redPin, 255);
-  analogWrite(greenPin, 0);
-  analogWrite(bluePin, 0);
-  delay(1000);  // Espera 1 segundo
-
-  // Cor Verde
-  analogWrite(redPin, 0);
-  analogWrite(greenPin, 255);
-  analogWrite(bluePin, 0);
-  delay(1000);
-
-  // Cor Azul
-  analogWrite(redPin, 0);
-  analogWrite(greenPin, 0);
-  analogWrite(bluePin, 255);
-  delay(1000);
-
-  // Cor Amarelo
-  analogWrite(redPin, 255);
-  analogWrite(greenPin, 255);
-  analogWrite(bluePin, 0);
-  delay(1000);
-
-  float presença1 = 1 float presença2 = 2
-
-  Serial.begin(115200);
-  pinMode(TRIGGER_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
-
-  //Ultrassom/distancia/presença
-
-  long distancia = lerDistancia();
+  long distancia1 = lerDistancia1();
   
   Serial.print("Distância: ");
-  Serial.print(distancia);
+  Serial.print(distancia1);
   Serial.println(" cm");
   
-  if (distancia < 10) {
+  if (distancia1 < 10) {
     mqtt.publish(SA_SP_Presenca1, "detectado");
-
+  }
   long distancia2 = lerDistancia2();
   
   Serial.print("Distância: ");
@@ -175,38 +137,3 @@ void callback(char* topic, byte* payload, unsigned long length) {
     Serial.println("Led ligado: ");
   }
 }
-
-// LED iluminação
-
-// LED status (RGB)
-}
-
- 
-<<<<<<< HEAD
-}
-== == == =
-}
->>>>>>> 7b0a06d7acbebe57d133ef952cb8a98726d48d51
-
-/*
-S1 
-
-Temperatura publica; 
-Umidade 
-Luminosidade publica; para S2, S3, S1.
-Presença 1  se inscreve no S2
-
-S2
-
-Presença 2
-Presença 4
-
-Do S1 recebe de Luminosidade
-
-S3
-
-Presença 3 usa o 
-
-Do S1 recebe de Luminosidade
-
-*/
