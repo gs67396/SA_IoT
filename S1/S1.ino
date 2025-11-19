@@ -15,7 +15,7 @@ DHT dht(DHTPIN, DHTTYPE);
 
 
 WiFiClientSecure wifiClient;
-PubSubClient mqtt(client);
+PubSubClient mqtt(Client);
 
 const String brokerURL = "test.mosquitto.org";
 const int brokerPort = 1883;
@@ -39,7 +39,7 @@ void setup() {
   pinMode(2, OUTPUT);
 
   Serial.begin(115200);
-  wifiClient.setInsetcure();
+  Client.setInsetcure();
   WiFi.begin(SSID, PASS);
   Serial.println("Conectando no WiFi");
   while (WiFi.status() != WL_CONNECTED) {
@@ -55,7 +55,7 @@ void setup() {
   boardID += String(random(0xffff), HEX);
 
   while (!mqtt.connected()) {
-    mqtt.connect(userId.c_str(),BROKER_USR_NAME, BROKER_USR_PASS);
+    mqtt.connect(boardID.c_str(),BROKER_USR_NAME, BROKER_USR_PASS);
     Serial.print(".");
     delay(2000);
   }

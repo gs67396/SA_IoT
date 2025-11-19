@@ -23,7 +23,7 @@ void setup() {
 
   pinMode(2, OUTPUT);
   Serial.begin(115200);      //configura a placa para mostrar na tela
-  WiFiClient.SetInsecure();  ////28/20
+  client.setInsecure();  ////28/20
   WiFi.begin(SSID, PASS);    //tenta conectar na rede
   Serial.println("conectado no WiFi");
   while (WiFi.status() != WL_CONNECTED) {
@@ -41,11 +41,9 @@ void setup() {
   //junta o S1 com um numero aleatorio
   boardID += String(random(0xffff), HEX);
 
-  string userID = "";
-  
   // enquando nao estiver conectado mostra "."
   while (!mqtt.connected()) {  // nao estiver conectado
-    mqtt.connect(userId.c_str(), BROKER_USR_NAME, BROKER_USR_PASS); //
+    mqtt.connect(boardID.c_str(), BROKER_USR_NAME, BROKER_USR_PASS); //
     Serial.print(".");
     delay(2000);
   }
