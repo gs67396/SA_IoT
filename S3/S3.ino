@@ -2,6 +2,7 @@
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
 #include "env.h"
+#include <ESP32Servo.h>
 
 WiFiClientSecure wifiClient;
 PubSubClient mqtt(wifiClient);
@@ -9,6 +10,15 @@ PubSubClient mqtt(wifiClient);
 const byte TRIGGER_PIN = 22;
 const byte ECHO_PIN = 23;
 const byte LED = 2;
+
+Servo meuServo;
+const byte SERVO_A_PIN = 18;
+const byte SERVO_B_PIN = 19;
+
+//Led RGB
+const byte LED_R = 14;
+const byte LED_G = 26;
+const byte LED_B = 25;
 
 void setup() {
 
@@ -43,6 +53,18 @@ void setup() {
   pinMode(TRIGGER_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
 
+  //LED RGB
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);
+  ledcAttach(LED_R, 5000, 8);
+  ledcAttach(LED_G, 5000, 8);
+  ledcAttach(LED_B, 5000, 8);
+
+  Serial.begin(115200);
+  servoA.attach(SERVO_A_PIN); 
+  servoB.attach(SERVO_B_PIN);
+
   //inscrever topic
   mqtt.subscribe(SA_SP_Presenca);
   mqtt.subscribe(SA_SP_Presenca2);
@@ -63,6 +85,13 @@ long lerDistancia() {
   return distancia;
 }
 
+//LED RGB
+void definirCor(int r, int g, int b) {
+  ledcWrite(0, r);  // Escreve valor no canal 0 (vermelho)
+  ledcWrite(1, g);  // Escreve valor no canal 1 (verde)
+  ledcWrite(2, b);  // Escreve valor no canal 2 (azul)
+}
+
 void loop() {
 
   // Ultrassônico
@@ -76,10 +105,55 @@ void loop() {
     mqtt.publish(SA_SP_Presenca3, "detectado");
   }
 
+  //LED RGB
+
+  // Vermelho
+  definirCor(255, 0, 0);
+  delay(1000);
+  
+  // Verde
+  definirCor(0, 255, 0);
+  delay(1000);
+  
+  // Azul
+  definirCor(0, 0, 255);
+  delay(1000);
+  
+  // Branco
+  definirCor(255, 255, 255);
+  delay(1000);
+  
+  // Desligado
+  definirCor(0, 0, 0);
+  delay(1000);
+
   delay(500);
   mqtt.loop();
 
+   // Varre de 0 a 120 graus
+  for (int pos = 0; pos <= 120; pos += 1) {
+    meuServo.write(pos);
+    delay(15);
 }
+
+// Varre de 120 a 0 graus
+  for (int pos = 120; pos >= 0; pos -= 1) {
+    meuServo.write(pos);
+    delay(15);
+  }
+
+  // Varre de 0 a 128 graus
+  for (int pos = 0; pos <= 120; pos += 1) {
+    meuServoA.write(pos);
+    delay(15);
+}
+
+// Varre de 128 a 0 graus
+  for (int pos = 120; pos >= 0; pos -= 1) {
+    meuServoB.write(pos);
+    delay(15);
+  }
+
 
 void callback(char* topic, byte* payload, unsigned long length) {
   String mensagemRecebida = "";
