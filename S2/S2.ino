@@ -4,9 +4,8 @@
 #include <WiFiClientSecure.h>  ////28/20
 #include <ESP32Servo.h>
 
-
-WiFiClientSecure client;
-PubSubClient mqtt(client);
+WiFiClientSecure wifiClient;
+PubSubClient mqtt(wifiClient);
 
 //sensor1
 const byte TRIGGER_PIN = 5;
@@ -16,31 +15,38 @@ const byte TRIGGER_PIN2 = 4;
 const byte ECHO_PIN2 = 19;
 
 void setup() {
+
+  pinMode(TRIGGER_PIN, OUTPUT);
+  pinMode(ECHO_PIN, OUTPUT);
+  pinMode(TRIGGER_PIN2, OUTPUT);
+  pinMode(ECHO_PIN2, OUTPUT);
+
   //Wifi
   pinMode(2, OUTPUT);
-  Serial.begin(115200);    
-  Client.setInsecure();    
+  Serial.begin(115200);
+  wifiClient.setInsecure();
   WiFi.begin(SSID, PASS);
-  Serial.println("conectado no WiFi");
+  Serial.println("Conectando no WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(200);
   }
+
   Serial.println("\n conectado com sucesso");
 
   // INICIO DO CODIGO: configura o servidor
   mqtt.setServer(BROKER_URL, BROKER_PORT);
   Serial.println("Conectando no Broker");
-  String boardID = "S2-";
+  String boardID = "Sl-";
   boardID += String(random(0xffff), HEX);
 
-  while (!mqtt.connected()) {                                        
-    mqtt.connect(boardID.c_str(), BROKER_USR_NAME, BROKER_USR_PASS);  
+  while (!mqtt.connected()) {
+    mqtt.connect(boardID.c_str(), BROKER_USR_NAME, BROKER_USR_PASS);
     Serial.print(".");
     delay(2000);
   }
 
-  mqtt.subscribe(SA_SP_Luminosidade);  //inscrever topic
+  mqtt.subscribe(SA_SL_Luminosidade);
   mqtt.setCallback(callback);
   Serial.println("conectado com sucesso!");
 

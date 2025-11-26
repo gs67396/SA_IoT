@@ -82,6 +82,20 @@ long lerDistancia() {
 
 void loop() {
 
+  //distancia
+  long distancia = lerDistancia();
+
+  Serial.print("Distância: ");
+  Serial.print(distancia);
+  Serial.println(" cm");
+
+  if (distancia < 10) {
+    mqtt.publish(SA_SP_Presenca4, "detectado");
+  }
+
+  delay(500);
+  mqtt.loop();
+
   //Sensor de umidade e temperatura
   float umidade = dht.readHumidity();
   float temperatura = dht.readTemperature();

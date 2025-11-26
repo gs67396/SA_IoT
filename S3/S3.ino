@@ -6,12 +6,13 @@
 WiFiClientSecure wifiClient;
 PubSubClient mqtt(wifiClient);
 
-//sensor3
-const byte TRIGGER_PIN = 5;
-const byte ECHO_PIN = 18;
+const byte TRIGGER_PIN = 22;
+const byte ECHO_PIN = 23;
+const byte LED = 2;
 
 void setup() {
-//wifi
+
+  //wifi
   Serial.begin(115200);
   wifiClient.setInsecure();
   WiFi.begin(SSID, PASS);
@@ -26,72 +27,59 @@ void setup() {
   // INICIO DO CODIGO: configura o servidor
   mqtt.setServer(BROKER_URL, BROKER_PORT);
   Serial.println("Conectando no Broker");
-  String boardID = "S2-";
-  boardID += String(random(0xffff), HEX);
-
-  while (!mqtt.connected()) {                                        
-    mqtt.connect(boardID.c_str(), BROKER_USR_NAME, BROKER_USR_PASS);  
-    Serial.print(".");
-    delay(2000);
-  }
-  
-  }
-
-  // INICIO DO CODIGO: configura o servidor
-  mqtt.setServer(BROKER_URL, BROKER_PORT);
-  Serial.println("Conectando no Broker");
   String boardID = "Sl-";
   boardID += String(random(0xffff), HEX);
 
-  while (!mqtt.connected(()) {  // nao estiver conectado
-    mqtt.connect(userId.c_str(), BROKER_USR_NAME, BROKER_USR_PASS);
+  while (!mqtt.connected()) {
+    mqtt.connect(boardID.c_str(), BROKER_USR_NAME, BROKER_USR_PASS);
     Serial.print(".");
     delay(2000);
-  }
-  mqtt.subscribe(SA_SP_Presenca); //inscrever topic
-  mqtt.subscribe(SA_SP_Presenca2); //inscrever topic
-  mqtt.subscribe(SA_SP_Presenca3); //inscrever topic
-  mqtt.setCallback(callback);
-  Serial.println("conectado com sucesso!");
+  } 
 
-  //Ultrassom/distancia/presença
+  pinMode(LED, OUTPUT);
+
+  // distancia
   Serial.begin(115200);
   pinMode(TRIGGER_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
+
+  //inscrever topic
+  mqtt.subscribe(SA_SP_Presenca);
+  mqtt.subscribe(SA_SP_Presenca2);
+  mqtt.subscribe(SA_SP_Presenca3);
+  mqtt.setCallback(callback);
+  Serial.println("conectado com sucesso!");
 }
 
-//Ultrassom/distancia/presença
+//distancia
 long lerDistancia() {
   digitalWrite(TRIGGER_PIN, LOW);
   delayMicroseconds(2);
   digitalWrite(TRIGGER_PIN, HIGH);
   delayMicroseconds(10);
   digitalWrite(TRIGGER_PIN, LOW);
-  
   long duracao = pulseIn(ECHO_PIN, HIGH);
   long distancia = duracao * 349.24 / 2 / 10000;
-  
   return distancia;
 }
 
-
 void loop() {
 
-  //Ultrassom/distancia/presença
+  // Ultrassônico
   long distancia = lerDistancia();
 
-   Serial.print("Distância: ");
+  Serial.print("Distância: ");
   Serial.print(distancia);
   Serial.println(" cm");
-  
+
   if (distancia < 10) {
-    Serial.println("Objeto próximo!");
+    mqtt.publish(SA_SP_Presenca3, "detectado");
   }
-  
+
   delay(500);
   mqtt.loop();
-}
 
+}
 
 void callback(char* topic, byte* payload, unsigned long length) {
   String mensagemRecebida = "";
@@ -100,6 +88,7 @@ void callback(char* topic, byte* payload, unsigned long length) {
   }
 
   Serial.println(mensagemRecebida);
+  //Fazer o controle aqui
 
   if (mensagemRecebida == "0") {
     digitalWrite(2, LOW);
@@ -111,3 +100,4 @@ void callback(char* topic, byte* payload, unsigned long length) {
     Serial.println("Led ligado: ");
   }
 }
+
