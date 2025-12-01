@@ -14,13 +14,23 @@ const byte ECHO_PIN = 18;
 const byte TRIGGER_PIN2 = 4;
 const byte ECHO_PIN2 = 19;
 
+//sensor de luz
+const byte TRIGGER_PIN3 = 22;
+const byte LED3 = 19;
+
+const byte LDR_PIN = 34;
+const byte ECHO_PIN3 = 23;
+
+//Led RGB
+const byte LED_R = 14;
+const byte LED_G = 26;
+const byte LED_B = 25;
+
+//SERVO
+Servo meuServo;
+const byte SERVO_PIN = 3;
+
 void setup() {
-
-  pinMode(TRIGGER_PIN, OUTPUT);
-  pinMode(ECHO_PIN, OUTPUT);
-  pinMode(TRIGGER_PIN2, OUTPUT);
-  pinMode(ECHO_PIN2, OUTPUT);
-
   //Wifi
   pinMode(2, OUTPUT);
   Serial.begin(115200);
@@ -46,9 +56,18 @@ void setup() {
     delay(2000);
   }
 
-  mqtt.subscribe(SA_SL_Luminosidade);
-  mqtt.setCallback(callback);
-  Serial.println("conectado com sucesso!");
+  //presença 1 e 2
+  pinMode(TRIGGER_PIN, OUTPUT);
+  pinMode(ECHO_PIN, OUTPUT);
+  pinMode(TRIGGER_PIN2, OUTPUT);
+  pinMode(ECHO_PIN2, OUTPUT);
+  //Luz
+  pinMode(TRIGGER_PIN3, OUTPUT);
+  pinMode(ECHO_PIN3, OUTPUT);
+
+  //servo
+  Serial.begin(115200);
+  meuServo.attach(SERVO_PIN);
 
   //Ultrassom/distancia/presença
   Serial.begin(115200);
@@ -59,6 +78,22 @@ void setup() {
   Serial.begin(115200);
   pinMode(TRIGGER_PIN2, OUTPUT);
   pinMode(ECHO_PIN2, INPUT);
+
+  //sensor de luz
+  Serial.begin(115200);
+
+  //LED RGB
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);
+  ledcAttach(LED_R, 5000, 8);
+  ledcAttach(LED_G, 5000, 8);
+  ledcAttach(LED_B, 5000, 8);
+
+  //inscrever topic
+  mqtt.subscribe(SA_SL_Luminosidade);
+  mqtt.setCallback(callback);
+  Serial.println("conectado com sucesso!");
 }
 
 //Ultrassom/distancia/presença
@@ -89,6 +124,13 @@ long lerDistancia2() {
   return distancia;
 }
 
+//LED RGB
+void definirCor(int r, int g, int b) {
+  ledcWrite(0, r);  // Escreve valor no canal 0 (vermelho)
+  ledcWrite(1, g);  // Escreve valor no canal 1 (verde)
+  ledcWrite(2, b);  // Escreve valor no canal 2 (azul)
+}
+
 void loop() {
 
   //Ultrassom/distancia/presença
@@ -114,7 +156,91 @@ void loop() {
   }
 
   delay(500);
-  mqtt.loop();
+
+  //sensor de luz
+  int leituraLDR = analogRead(LDR_PIN);
+  float tensao = (leituraLDR * 3.3) / 4095.0;
+
+  Serial.print("Leitura LDR: ");
+  Serial.print(leituraLDR);
+  Serial.print(" - Tensão: ");
+  Serial.println(tensao);
+
+  if (leituraLDR < 1000) {
+    Serial.println("Ambiente escuro");
+  } else {
+    Serial.println("Ambiente claro");
+  }
+
+  delay(500);
+
+  // Servo motor
+  // Varre de 0 a 180 graus
+  for (int pos = 0; pos <= 180; pos += 1) {
+    meuServo.write(pos);
+    delay(15);
+
+    // Varre de 180 a 0 graus
+    for (int pos = 180; pos >= 0; pos -= 1) {
+      meuServo.write(pos);
+      delay(15);
+
+      mqtt.loop();
+    }
+  }
+
+  //servo motor
+  for (int pos = 0; pos <= 90; pos += 1) {
+    meuServo.write(pos);
+    delay(15);
+  }
+  
+  // Varre de 90 a 0 graus
+  for (int pos = 90; pos >= 0; pos -= 1) {
+    meuServo.write(pos);
+    delay(15); 
+  }
+}
+
+void statusLED(byte status) {
+  turnOffLEDs();
+  switch (status) {
+    case 254:  //(Vermelho)
+      setLEDColor(255, 0, 0);
+      break;
+    case 1:  //(Amarelo)
+      setLEDColor(150, 255, 0);
+      break;
+    case 2:  //(Rosa)
+      setLEDColor(150, 0, 255);
+      break;
+    case 3:  //(Verde)
+      setLEDColor(0, 255, 0);
+      break;
+    case 4:  //(Ciano)
+      setLEDColor(0, 255, 255);
+      break;
+    default:
+      for (byte i = 0; i < 4; i++) {
+        setLEDColor(0, 0, 255);  //(pisca azul)
+        delay(100);
+        turnOffLEDs();
+        delay(100);
+      }
+      break;
+  }
+}
+
+
+void turnOffLEDs() {
+  setLEDColor(0, 0, 0);
+}
+
+//led RGB
+void setLEDColor(byte r, byte g, byte b) {
+  ledcWrite(LED_R, r);
+  ledcWrite(LED_G, g);
+  ledcWrite(LED_B, b);
 }
 
 

@@ -11,8 +11,8 @@ const byte ECHO_PIN = 23;
 const byte LED = 2;
 
 //Ponte-H
-const byte in1 = 3;
-const byte in2 = 4;
+const byte in1 = 21;
+const byte in2 = 18;
 
 //Led RGB
 const byte LED_R = 14;
@@ -89,29 +89,48 @@ void loop() {
   ledcWrite(in1, 0);
   ledcWrite(in2, 255);
 
-  //LED RGB
-  
-  // Vermelho
-  definirCor(255, 0, 0);
-  delay(1000);
-  
-  // Verde
-  definirCor(0, 255, 0);
-  delay(1000);
-  
-  // Azul
-  definirCor(0, 0, 255);
-  delay(1000);
-  
-  // Branco
-  definirCor(255, 255, 255);
-  delay(1000);
-  
-  // Desligado
-  definirCor(0, 0, 0);
-  delay(1000);
-
   mqtt.loop();  //mantem a conexão
+}
+
+void statusLED(byte status) {
+	turnOffLEDs();
+	switch (status) {
+	case 254: //(Vermelho)
+    	setLEDColor(255, 0, 0);
+    	break;
+	case 1: //(Amarelo)
+    	setLEDColor(150, 255, 0);
+    	break;
+	case 2: //(Rosa)
+    	setLEDColor(150, 0, 255);
+    	break;
+	case 3:  //(Verde)
+    	setLEDColor(0, 255, 0);
+    	break;
+	case 4:  //(Ciano)
+    	setLEDColor(0, 255, 255);
+    	break;
+	default:
+    	for (byte i = 0; i < 4; i++) {
+        	setLEDColor(0, 0, 255);  //(pisca azul)
+        	delay(100);
+        	turnOffLEDs();
+        	delay(100);
+    	}
+    	break;
+	}
+}
+
+
+void turnOffLEDs() {
+      setLEDColor(0, 0, 0); 
+}
+
+//led RGB
+void setLEDColor(byte r, byte g, byte b) {
+	ledcWrite(LED_R, r);
+	ledcWrite(LED_G, g);
+	ledcWrite(LED_B, b);
 }
 
 void callback(char* topic, byte* payload, unsigned long length) {

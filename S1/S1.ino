@@ -18,13 +18,18 @@ const byte LED = 19;
 const byte LDR_PIN = 34;
 const byte ECHO_PIN = 23;
 
+//Led RGB
+const byte LED_R = 14;
+const byte LED_G = 26;
+const byte LED_B = 25;
+
 void setup() {
 
+  //luz sensor
   pinMode(TRIGGER_PIN, OUTPUT);
   pinMode(LED, OUTPUT);
-
   pinMode(LDR_PIN, INPUT);
-  pinMode(ECHO_PIN, INPUT);
+  pinMode(ECHO_PIN, INPUT);  
 
   //wifi
   Serial.begin(115200);
@@ -62,6 +67,14 @@ void setup() {
   //sensor de luz
   Serial.begin(115200);
 
+  //LED RGB
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);
+  ledcAttach(LED_R, 5000, 8);
+  ledcAttach(LED_G, 5000, 8);
+  ledcAttach(LED_B, 5000, 8);
+
   //inscrever topic
   mqtt.subscribe(SA_SL_Luminosidade);
   mqtt.setCallback(callback);
@@ -78,6 +91,13 @@ long lerDistancia() {
   long duracao = pulseIn(ECHO_PIN, HIGH);
   long distancia = duracao * 349.24 / 2 / 10000;
   return distancia;
+}
+
+//LED RGB
+void definirCor(int r, int g, int b) {
+  ledcWrite(0, r);  // Escreve valor no canal 0 (vermelho)
+  ledcWrite(1, g);  // Escreve valor no canal 1 (verde)
+  ledcWrite(2, b);  // Escreve valor no canal 2 (azul)
 }
 
 void loop() {
@@ -132,6 +152,47 @@ void loop() {
 
 
 mqtt.loop();  //mantem a conexão
+}
+
+void statusLED(byte status) {
+	turnOffLEDs();
+	switch (status) {
+	case 254: //(Vermelho)
+    	setLEDColor(255, 0, 0);
+    	break;
+	case 1: //(Amarelo)
+    	setLEDColor(150, 255, 0);
+    	break;
+	case 2: //(Rosa)
+    	setLEDColor(150, 0, 255);
+    	break;
+	case 3:  //(Verde)
+    	setLEDColor(0, 255, 0);
+    	break;
+	case 4:  //(Ciano)
+    	setLEDColor(0, 255, 255);
+    	break;
+	default:
+    	for (byte i = 0; i < 4; i++) {
+        	setLEDColor(0, 0, 255);  //(pisca azul)
+        	delay(100);
+        	turnOffLEDs();
+        	delay(100);
+    	}
+    	break;
+	}
+}
+
+
+void turnOffLEDs() {
+      setLEDColor(0, 0, 0); 
+}
+
+//led RGB
+void setLEDColor(byte r, byte g, byte b) {
+	ledcWrite(LED_R, r);
+	ledcWrite(LED_G, g);
+	ledcWrite(LED_B, b);
 }
 
 void callback(char* topic, byte* payload, unsigned long length) {

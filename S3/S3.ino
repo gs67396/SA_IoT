@@ -11,9 +11,11 @@ const byte TRIGGER_PIN = 22;
 const byte ECHO_PIN = 23;
 const byte LED = 2;
 
-Servo meuServo;
+//motor
+Servo ServoA;
+Servo ServoB;
 const byte SERVO_A_PIN = 18;
-const byte SERVO_B_PIN = 19;
+const byte SERVO_B_PIN = 3;
 
 //Led RGB
 const byte LED_R = 14;
@@ -44,7 +46,7 @@ void setup() {
     mqtt.connect(boardID.c_str(), BROKER_USR_NAME, BROKER_USR_PASS);
     Serial.print(".");
     delay(2000);
-  } 
+  }
 
   pinMode(LED, OUTPUT);
 
@@ -62,8 +64,8 @@ void setup() {
   ledcAttach(LED_B, 5000, 8);
 
   Serial.begin(115200);
-  servoA.attach(SERVO_A_PIN); 
-  servoB.attach(SERVO_B_PIN);
+  ServoA.attach(SERVO_A_PIN);
+  ServoB.attach(SERVO_B_PIN);
 
   //inscrever topic
   mqtt.subscribe(SA_SP_Presenca);
@@ -105,54 +107,74 @@ void loop() {
     mqtt.publish(SA_SP_Presenca3, "detectado");
   }
 
-  //LED RGB
-
-  // Vermelho
-  definirCor(255, 0, 0);
-  delay(1000);
-  
-  // Verde
-  definirCor(0, 255, 0);
-  delay(1000);
-  
-  // Azul
-  definirCor(0, 0, 255);
-  delay(1000);
-  
-  // Branco
-  definirCor(255, 255, 255);
-  delay(1000);
-  
-  // Desligado
-  definirCor(0, 0, 0);
-  delay(1000);
-
   delay(500);
   mqtt.loop();
 
-   // Varre de 0 a 120 graus
+  // Varre de 0 a 120 graus
   for (int pos = 0; pos <= 120; pos += 1) {
-    meuServo.write(pos);
-    delay(15);
-}
-
-// Varre de 120 a 0 graus
-  for (int pos = 120; pos >= 0; pos -= 1) {
-    meuServo.write(pos);
+    ServoA.write(pos);
     delay(15);
   }
 
-  // Varre de 0 a 128 graus
-  for (int pos = 0; pos <= 120; pos += 1) {
-    meuServoA.write(pos);
-    delay(15);
-}
-
-// Varre de 128 a 0 graus
+  // Varre de 120 a 0 graus
   for (int pos = 120; pos >= 0; pos -= 1) {
-    meuServoB.write(pos);
+    ServoA.write(pos);
     delay(15);
   }
+
+  // Varre de 0 a 120 graus
+  for (int pos = 0; pos <= 128; pos += 1) {
+    ServoB.write(pos);
+    delay(15);
+  }
+
+  // Varre de 120 a 0 graus
+  for (int pos = 128; pos >= 0; pos -= 1) {
+    ServoB.write(pos);
+    delay(15);
+  }
+}
+
+void statusLED(byte status) {
+  turnOffLEDs();
+  switch (status) {
+    case 254:  //(Vermelho)
+      setLEDColor(255, 0, 0);
+      break;
+    case 1:  //(Amarelo)
+      setLEDColor(150, 255, 0);
+      break;
+    case 2:  //(Rosa)
+      setLEDColor(150, 0, 255);
+      break;
+    case 3:  //(Verde)
+      setLEDColor(0, 255, 0);
+      break;
+    case 4:  //(Ciano)
+      setLEDColor(0, 255, 255);
+      break;
+    default:
+      for (byte i = 0; i < 4; i++) {
+        setLEDColor(0, 0, 255);  //(pisca azul)
+        delay(100);
+        turnOffLEDs();
+        delay(100);
+      }
+      break;
+  }
+}
+
+
+void turnOffLEDs() {
+  setLEDColor(0, 0, 0);
+}
+
+//led RGB
+void setLEDColor(byte r, byte g, byte b) {
+  ledcWrite(LED_R, r);
+  ledcWrite(LED_G, g);
+  ledcWrite(LED_B, b);
+}
 
 
 void callback(char* topic, byte* payload, unsigned long length) {
@@ -174,4 +196,3 @@ void callback(char* topic, byte* payload, unsigned long length) {
     Serial.println("Led ligado: ");
   }
 }
-
