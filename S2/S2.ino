@@ -264,5 +264,5 @@ void callback(char* topic, byte* payload, unsigned long length) {
     digitalWrite(2, HIGH);
     Serial.println("Led ligado: ");
   }
-  
+
 }
