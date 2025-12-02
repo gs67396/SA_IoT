@@ -245,6 +245,7 @@ void setLEDColor(byte r, byte g, byte b) {
 
 
 void callback(char* topic, byte* payload, unsigned long length) {
+
   String mensagemRecebida = "";
   for (int i = 0; i < length; i++) {
     mensagemRecebida += (char)payload[i];
@@ -254,13 +255,14 @@ void callback(char* topic, byte* payload, unsigned long length) {
   Serial.println(mensagemRecebida);
   //Fazer o controle aqui
 
-  if (mensagemRecebida == "0") {
+  if (mensagemRecebida == "apagado"){
     digitalWrite(2, LOW);
     Serial.println("Led desligado: ");
   }
 
-  if (mensagemRecebida == "1") {
+  else if (mensagemRecebida == "aceso"){
     digitalWrite(2, HIGH);
     Serial.println("Led ligado: ");
   }
+  
 }
