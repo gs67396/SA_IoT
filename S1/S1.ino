@@ -125,11 +125,23 @@ void loop() {
     return;
   }
 
+  // Array de caracteres para armazenar a string convertida 
+  char tempStr[8]; 
+  char humStr[8];
+
+  //converte
+
+  dtostrf(temperatura, 4, 1, tempStr);
+  dtostrf(umidade, 4, 1, humStr);
+
   Serial.print("Umidade: ");
   Serial.print(umidade);
+  mqtt.publish(SA_SP_Umidade, humStr);
   Serial.print("%  Temperatura: ");
   Serial.print(temperatura);
   Serial.println("°C");
+  mqtt.publish(SA_SP_Temperadura, tempStr);
+ 
 
   delay(2000);
 
@@ -144,8 +156,10 @@ void loop() {
 
   if (leituraLDR < 1000) {
     Serial.println("Ambiente escuro");
+    mqtt.publish(SA_SP_Luminosidade, "apagado");
   } else {
     Serial.println("Ambiente claro");
+    mqtt.publish(SA_SP_Luminosidade, "aceso");
   }
 
   delay(500);
