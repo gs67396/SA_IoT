@@ -136,11 +136,11 @@ void loop() {
 
   Serial.print("Umidade: ");
   Serial.print(umidade);
-  mqtt.publish(SA_SP_Umidade, humStr);
+  mqtt.publish(SA_SU_Umidade, humStr);
   Serial.print("%  Temperatura: ");
   Serial.print(temperatura);
   Serial.println("°C");
-  mqtt.publish(SA_SP_Temperadura, tempStr);
+  mqtt.publish(SA_ST_Temperatura, tempStr);
  
 
   delay(2000);
@@ -156,10 +156,10 @@ void loop() {
 
   if (leituraLDR < 1000) {
     Serial.println("Ambiente escuro");
-    mqtt.publish(SA_SP_Luminosidade, "apagado");
+    mqtt.publish(SA_SL_Luminosidade, "apagado");
   } else {
     Serial.println("Ambiente claro");
-    mqtt.publish(SA_SP_Luminosidade, "aceso");
+    mqtt.publish(SA_SL_Luminosidade, "aceso");
   }
 
   delay(500);
